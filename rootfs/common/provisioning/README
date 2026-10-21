@@ -1,0 +1,6 @@
+This directory is the mount point for the provisioning partition (p5), which
+holds device identity and enrollment credentials and survives a factory reset.
+
+It is mounted as read-only during boot. If you are reading this file on a running
+device, the mount did not happen: the partition is missing, unformatted or
+corrupt.

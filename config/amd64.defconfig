@@ -1,0 +1,22 @@
+# Buildroot options for amd64
+
+# Architecture and toolchain
+BR2_x86_64=y
+BR2_TOOLCHAIN_EXTERNAL_URL="https://github.com/nerves-project/toolchains/releases/download/v15.3.0/nerves_toolchain_x86_64_nerves_linux_gnu-linux_${shell uname -m}-15.3.0-C85F8A0.tar.xz"
+BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="$(ARCH)-nerves-linux-gnu"
+
+# Boot: GRUB
+BR2_TARGET_GRUB2=y
+BR2_TARGET_GRUB2_X86_64_EFI=y
+BR2_TARGET_GRUB2_BUILTIN_CONFIG_EFI="${NERVES_DEFCONFIG_DIR}/grub-embedded.cfg"
+BR2_TARGET_GRUB2_BUILTIN_MODULES_EFI="boot linux ext2 squash4 fat part_msdos part_gpt normal efi_gop efi_uga loadenv echo true test sleep search search_fs_uuid regexp"
+BR2_PACKAGE_HOST_DOSFSTOOLS=y
+
+# Platform tools
+BR2_PACKAGE_DMIDECODE=y
+BR2_PACKAGE_EFIBOOTMGR=y
+# BR2_PACKAGE_E2FSPROGS_FSCK is not set
+
+# System name and kernel
+BR2_NERVES_SYSTEM_NAME="fostrom_system_amd64"
+BR2_PACKAGE_FOSTROM_KERNEL_TARGET="amd64"

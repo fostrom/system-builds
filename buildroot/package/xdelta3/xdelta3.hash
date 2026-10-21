@@ -1,0 +1,4 @@
+# Locally computed from GitHub's archive of the commit v3.2.0 names, and the
+# archive compared file by file with a clone at that tag.
+sha256  2553888160ad4e4036fc012c123e9c4d917cfc1be10f180a43b22f09dc94db53  xdelta3-ff322e592383227b0d65ddfde7e0e5bbc504dc15.tar.gz
+sha256  6cf63d87586c7c25c3ab8e62eef5c75bbaa982b0a6f9c00c59e2720255aac9ec  xdelta3/LICENSE

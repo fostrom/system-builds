@@ -1,0 +1,4 @@
+# Locally computed from the v15.3.0 release of
+# https://github.com/nerves-project/toolchains
+sha256  e2d5605236330778bf00c4e27c39ec181e8851e11f158f9465959ac907359e4e  nerves_toolchain_x86_64_nerves_linux_gnu-linux_x86_64-15.3.0-C85F8A0.tar.xz
+sha256  22956a10425de60fd6e4d730a0cc4fedda568b68a08f239477ca71f440cc1a4e  nerves_toolchain_aarch64_nerves_linux_gnu-linux_x86_64-15.3.0-8DAF9F3.tar.xz

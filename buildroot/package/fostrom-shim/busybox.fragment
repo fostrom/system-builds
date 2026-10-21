@@ -1,0 +1,6 @@
+# What the shim changes in busybox's own defconfig.
+CONFIG_STATIC=y
+CONFIG_USE_BB_PWD_GRP=y
+# CONFIG_TC is not set
+# CONFIG_FEATURE_UTMP is not set
+# CONFIG_FEATURE_WTMP is not set

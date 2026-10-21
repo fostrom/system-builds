@@ -1,0 +1,7 @@
+config BR2_PACKAGE_XDELTA3
+	bool "xdelta3"
+	help
+	  VCDIFF (RFC 3284) delta compression, the decoder half of
+	  appcode bundle deltas.
+	  
+	  https://github.com/jmacd/xdelta

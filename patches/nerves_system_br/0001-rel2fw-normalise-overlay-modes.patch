@@ -1,0 +1,14 @@
+diff --git a/scripts/rel2fw.sh b/scripts/rel2fw.sh
+index 9eb50b0..7227e89 100755
+--- a/scripts/rel2fw.sh
++++ b/scripts/rel2fw.sh
+@@ -171,6 +171,9 @@ if [[ "$ROOTFS_OVERLAYS" ]]; then
+     done
+ fi
+ 
++# Fostrom: modes as Buildroot normalises its overlays
++chmod -R u+rwX,go=rX "$TMP_DIR/rootfs_overlay"
++
+ # Merge the Erlang/OTP release onto the base image
+ "$NERVES_SYSTEM/scripts/merge-squashfs" "$NERVES_SDK_IMAGES/rootfs.squashfs" "$TMP_DIR/combined.squashfs" "$TMP_DIR/rootfs_overlay" "$SQUASHFS_PRIORITIES"
+ 

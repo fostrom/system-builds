@@ -1,0 +1,82 @@
+# Files on a Pi's boot partition, in the order an upgrade writes them: the
+# name on the partition, the file under images/, and delta where an upgrade
+# patches it against the other slot's copy
+
+# Config, kernel, GPU firmware fixup
+config.txt                               config.txt
+kernel8.img                              Image                                         delta
+fixup4.dat                               rpi-firmware/fixup4x.dat
+
+# Device trees, BCM2837 and BCM2710: Pi 2B v1.2, Pi 3, CM3, Zero 2 W
+bcm2710-rpi-2-b.dtb                      dtbs/broadcom/bcm2710-rpi-2-b.dtb             delta
+bcm2710-rpi-3-b.dtb                      dtbs/broadcom/bcm2710-rpi-3-b.dtb             delta
+bcm2710-rpi-3-b-plus.dtb                 dtbs/broadcom/bcm2710-rpi-3-b-plus.dtb        delta
+bcm2710-rpi-cm0.dtb                      dtbs/broadcom/bcm2710-rpi-cm0.dtb             delta
+bcm2710-rpi-cm3.dtb                      dtbs/broadcom/bcm2710-rpi-cm3.dtb             delta
+bcm2710-rpi-zero-2.dtb                   dtbs/broadcom/bcm2710-rpi-zero-2.dtb          delta
+bcm2710-rpi-zero-2-w.dtb                 dtbs/broadcom/bcm2710-rpi-zero-2-w.dtb        delta
+bcm2837-rpi-3-a-plus.dtb                 dtbs/broadcom/bcm2837-rpi-3-a-plus.dtb        delta
+bcm2710-rpi-3-a-plus.dtb                 dtbs/broadcom/bcm2837-rpi-3-a-plus.dtb        delta
+
+# Device trees, BCM2711: Pi 4B, 400, CM4
+bcm2711-rpi-4-b.dtb                      dtbs/broadcom/bcm2711-rpi-4-b.dtb             delta
+bcm2711-rpi-400.dtb                      dtbs/broadcom/bcm2711-rpi-400.dtb             delta
+bcm2711-rpi-cm4.dtb                      dtbs/broadcom/bcm2711-rpi-cm4.dtb             delta
+bcm2711-rpi-cm4-io.dtb                   dtbs/broadcom/bcm2711-rpi-cm4-io.dtb          delta
+bcm2711-rpi-cm4s.dtb                     dtbs/broadcom/bcm2711-rpi-cm4s.dtb            delta
+
+# Device trees, BCM2712: Pi 5, 500, CM5
+bcm2712-rpi-5-b.dtb                      dtbs/broadcom/bcm2712-rpi-5-b.dtb             delta
+bcm2712-rpi-500.dtb                      dtbs/broadcom/bcm2712-rpi-500.dtb             delta
+bcm2712-rpi-cm5-cm4io.dtb                dtbs/broadcom/bcm2712-rpi-cm5-cm4io.dtb       delta
+bcm2712-rpi-cm5-cm5io.dtb                dtbs/broadcom/bcm2712-rpi-cm5-cm5io.dtb       delta
+bcm2712-rpi-cm5l-cm4io.dtb               dtbs/broadcom/bcm2712-rpi-cm5l-cm4io.dtb      delta
+bcm2712-rpi-cm5l-cm5io.dtb               dtbs/broadcom/bcm2712-rpi-cm5l-cm5io.dtb      delta
+bcm2712d0-rpi-5-b.dtb                    dtbs/broadcom/bcm2712d0-rpi-5-b.dtb           delta
+bcm2712-d-rpi-5-b.dtb                    dtbs/broadcom/bcm2712-d-rpi-5-b.dtb           delta
+
+# GPU firmware for Pi 3 class boards
+start.elf                                rpi-firmware/start_x.elf                      delta
+fixup.dat                                rpi-firmware/fixup_x.dat
+
+# Crash log overlays, one for each family's address
+overlays/ramoops.dtbo                    ramoops-pi3.dtbo
+overlays/ramoops-pi4.dtbo                ramoops-pi4.dtbo
+
+# Overlays
+overlays/bcm2712d0.dtbo                  dtbs/overlays/bcm2712d0.dtbo
+overlays/dwc2.dtbo                       dtbs/overlays/dwc2.dtbo
+overlays/gpio-poweroff.dtbo              dtbs/overlays/gpio-poweroff.dtbo
+overlays/i2c-mux.dtbo                    dtbs/overlays/i2c-mux.dtbo
+overlays/i2c0-pi5.dtbo                   dtbs/overlays/i2c0-pi5.dtbo
+overlays/i2c1-pi5.dtbo                   dtbs/overlays/i2c1-pi5.dtbo
+overlays/i2c2-pi5.dtbo                   dtbs/overlays/i2c2-pi5.dtbo
+overlays/i2c3-pi5.dtbo                   dtbs/overlays/i2c3-pi5.dtbo
+overlays/imx219.dtbo                     dtbs/overlays/imx219.dtbo
+overlays/imx296.dtbo                     dtbs/overlays/imx296.dtbo
+overlays/imx477.dtbo                     dtbs/overlays/imx477.dtbo
+overlays/imx708.dtbo                     dtbs/overlays/imx708.dtbo
+overlays/miniuart-bt.dtbo                dtbs/overlays/miniuart-bt.dtbo
+overlays/ov5647.dtbo                     dtbs/overlays/ov5647.dtbo
+overlays/overlay_map.dtb                 dtbs/overlays/overlay_map.dtb
+overlays/pwm.dtbo                        dtbs/overlays/pwm.dtbo
+overlays/pwm-2chan.dtbo                  dtbs/overlays/pwm-2chan.dtbo
+overlays/pwm1.dtbo                       dtbs/overlays/pwm1.dtbo
+overlays/rpi-backlight.dtbo              dtbs/overlays/rpi-backlight.dtbo
+overlays/rpi-ft5406.dtbo                 dtbs/overlays/rpi-ft5406.dtbo
+overlays/tc358743.dtbo                   dtbs/overlays/tc358743.dtbo
+overlays/uart0-pi5.dtbo                  dtbs/overlays/uart0-pi5.dtbo
+overlays/uart1-pi5.dtbo                  dtbs/overlays/uart1-pi5.dtbo
+overlays/uart2-pi5.dtbo                  dtbs/overlays/uart2-pi5.dtbo
+overlays/uart3-pi5.dtbo                  dtbs/overlays/uart3-pi5.dtbo
+overlays/uart4-pi5.dtbo                  dtbs/overlays/uart4-pi5.dtbo
+overlays/vc4-kms-dsi-7inch.dtbo          dtbs/overlays/vc4-kms-dsi-7inch.dtbo
+overlays/vc4-kms-dsi-ili9881-5inch.dtbo  dtbs/overlays/vc4-kms-dsi-ili9881-5inch.dtbo
+overlays/vc4-kms-dsi-ili9881-7inch.dtbo  dtbs/overlays/vc4-kms-dsi-ili9881-7inch.dtbo
+overlays/vc4-kms-v3d.dtbo                dtbs/overlays/vc4-kms-v3d.dtbo
+overlays/vc4-kms-v3d-pi4.dtbo            dtbs/overlays/vc4-kms-v3d-pi4.dtbo
+overlays/vc4-kms-v3d-pi5.dtbo            dtbs/overlays/vc4-kms-v3d-pi5.dtbo
+overlays/w1-gpio.dtbo                    dtbs/overlays/w1-gpio.dtbo
+overlays/w1-gpio-pi5.dtbo                dtbs/overlays/w1-gpio-pi5.dtbo
+overlays/w1-gpio-pullup.dtbo             dtbs/overlays/w1-gpio-pullup.dtbo
+overlays/w1-gpio-pullup-pi5.dtbo         dtbs/overlays/w1-gpio-pullup-pi5.dtbo

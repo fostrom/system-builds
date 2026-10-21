@@ -1,0 +1,26 @@
+# Buildroot options for rpi
+
+# Architecture and toolchain
+BR2_aarch64=y
+BR2_TOOLCHAIN_EXTERNAL_URL="https://github.com/nerves-project/toolchains/releases/download/v15.3.0/nerves_toolchain_aarch64_nerves_linux_gnu-linux_${shell uname -m}-15.3.0-8DAF9F3.tar.xz"
+BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="aarch64-nerves-linux-gnu"
+
+# Boot: Raspberry Pi firmware
+BR2_PACKAGE_RPI_FIRMWARE=y
+BR2_PACKAGE_RPI_FIRMWARE_CUSTOM_VERSION="1.20260521"
+BR2_PACKAGE_RPI_FIRMWARE_BOOTCODE_BIN=y
+BR2_PACKAGE_RPI_FIRMWARE_VARIANT_PI_X=y
+BR2_PACKAGE_RPI_FIRMWARE_VARIANT_PI4_X=y
+# BR2_PACKAGE_RPI_FIRMWARE_INSTALL_DTBS is not set
+BR2_PACKAGE_HOST_DTC=y
+
+# System: device table
+BR2_ROOTFS_DEVICE_TABLE="${BR2_EXTERNAL_NERVES_PATH}/board/nerves-common/device_table.txt"
+
+# Platform tools
+BR2_PACKAGE_RPI_UTILS=y
+BR2_PACKAGE_F2FS_TOOLS=y
+
+# System name and kernel
+BR2_NERVES_SYSTEM_NAME="fostrom_system_rpi"
+BR2_PACKAGE_FOSTROM_KERNEL_TARGET="rpi"

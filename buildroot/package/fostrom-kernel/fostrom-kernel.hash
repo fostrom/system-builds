@@ -1,0 +1,6 @@
+# From the v0.1.0 release of https://github.com/fostrom/kernel-builds
+sha256  ec612554cbb9a9bd02061517f0c857be36143cbddfa46200678f1c5562750209  kernel-amd64-0.1.0.tar.zst
+sha256  96f96e9013745080814c893c39373118d41b8a93eeefe7e0cb7f5fd0f823727f  kernel-arm64-0.1.0.tar.zst
+sha256  bd1b7f8460ced60343910a8f7930d938a266dfcb967eae46c8d099785bd0b7ce  kernel-rpi-0.1.0.tar.zst
+sha256  fb5a425bd3b3cd6071a3a9aff9909a859e7c1158d54d32e07658398cd67eb6a0  usr/share/licenses/linux/COPYING
+sha256  c282239a5a2d849677e9304e6f361e475e1b6e71e7c771c03f8986f71b309527  usr/share/licenses/linux-firmware/WHENCE

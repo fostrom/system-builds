@@ -1,0 +1,1 @@
+dwc_otg.lpm_enable=0 console=tty1 console=serial0,115200 fbcon=scrollback:1024k root=PARTUUID={{.Signature}}-07 rootfstype=squashfs rootwait consoleblank=0 quiet panic=10 cgroup_enable=memory cgroup_memory=1

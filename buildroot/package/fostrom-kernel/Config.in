@@ -1,0 +1,16 @@
+config BR2_PACKAGE_FOSTROM_KERNEL
+	bool "fostrom-kernel"
+	help
+	  The kernel, its modules, firmware and microcode, from a
+	  kernel-builds release.
+
+	  https://github.com/fostrom/kernel-builds
+
+if BR2_PACKAGE_FOSTROM_KERNEL
+
+config BR2_PACKAGE_FOSTROM_KERNEL_TARGET
+	string "target"
+	help
+	  Which of the release's archives: amd64, arm64 or rpi.
+
+endif

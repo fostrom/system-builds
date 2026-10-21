@@ -1,0 +1,240 @@
+package main
+
+import (
+	"bytes"
+	"errors"
+	"flag"
+	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strconv"
+)
+
+// Buildroot runs these through the system directory's post-build.sh and
+// post-createfs.sh, with the rest of the build in their environment.
+type hookEnv struct {
+	target string // the root filesystem's tree
+	images string // images/, what a Nerves system carries beside the tree
+	host   string // host tools Buildroot built
+	base   string // Buildroot's output directory
+	system string // the target's system directory
+	nerves string // nerves_system_br
+}
+
+func hookEnvironment() (hookEnv, error) {
+	var e hookEnv
+	for _, v := range []struct {
+		name string
+		to   *string
+	}{
+		{"TARGET_DIR", &e.target},
+		{"BINARIES_DIR", &e.images},
+		{"HOST_DIR", &e.host},
+		{"BASE_DIR", &e.base},
+		{"NERVES_DEFCONFIG_DIR", &e.system},
+		{"BR2_EXTERNAL_NERVES_PATH", &e.nerves},
+	} {
+		if *v.to = os.Getenv(v.name); *v.to == "" {
+			return e, fmt.Errorf("no %s: run by Buildroot only", v.name)
+		}
+	}
+	return e, nil
+}
+
+func (e hookEnv) fromSystem(name string) string { return filepath.Join(e.system, name) }
+func (e hookEnv) toImages(name string) string   { return filepath.Join(e.images, name) }
+
+// hook reads a hook's flags and environment.
+func hook(command string, args []string) (target, hookEnv, error) {
+	flags := flag.NewFlagSet(command, flag.ExitOnError)
+	name := flags.String("target", "", "amd64, arm64 or rpi")
+	parse(flags, args)
+	t, err := lookup(*name)
+	if err != nil {
+		return t, hookEnv{}, err
+	}
+	e, err := hookEnvironment()
+	return t, e, err
+}
+
+// postBuild runs once every package is installed into the target directory,
+// before the root filesystem is made from it. It writes what fwup reads from
+// images/, and the operations a running device does with fwup.
+func postBuild(args []string) error {
+	t, e, err := hook("post-build", args)
+	if err != nil {
+		return err
+	}
+	switch t.boot {
+	case "grub":
+		if err := grubenvs(e.images); err != nil {
+			return err
+		}
+		if err := copyFile(e.fromSystem("grub.cfg"), e.toImages("grub.cfg")); err != nil {
+			return err
+		}
+	case "rpi":
+		for _, f := range []string{"config.txt", "cmdline-a.txt", "cmdline-b.txt"} {
+			if err := copyFile(e.fromSystem(f), e.toImages(f)); err != nil {
+				return err
+			}
+		}
+		if err := ramoops(e); err != nil {
+			return err
+		}
+	}
+	if err := writeCapabilities(e, t); err != nil {
+		return err
+	}
+	if err := toolchainLicences(e); err != nil {
+		return err
+	}
+	if err := copyTree(e.fromSystem("fwup_include"), e.toImages("fwup_include")); err != nil {
+		return err
+	}
+
+	ops := filepath.Join(e.target, "usr/share/fwup/ops.fw")
+	if err := os.MkdirAll(filepath.Dir(ops), 0o755); err != nil {
+		return err
+	}
+	env := append(os.Environ(), "NERVES_SYSTEM="+e.base)
+	fwup := filepath.Join(e.host, "bin/fwup")
+	if err := run("", env, fwup, "-c", "-f", e.fromSystem("fwup-ops.conf"), "-o", ops); err != nil {
+		return err
+	}
+	revert := filepath.Join(filepath.Dir(ops), "revert.fw")
+	if err := os.Remove(revert); err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return err
+	}
+	return os.Symlink("ops.fw", revert)
+}
+
+// toolchainLicences copies the licences of the toolchain's runtime libraries,
+// glibc's and GCC's, for which Buildroot's toolchain package declares none.
+func toolchainLicences(e hookEnv) error {
+	src := filepath.Join(e.host, "opt/ext-toolchain/share/licenses")
+	dest := filepath.Join(e.target, "usr/share/licenses")
+	if err := copyTree(filepath.Join(src, "glibc"), filepath.Join(dest, "glibc")); err != nil {
+		return err
+	}
+	gcc, err := filepath.Glob(filepath.Join(src, "gcc/COPYING*"))
+	if err != nil || len(gcc) == 0 {
+		return fmt.Errorf("no GCC licences in the toolchain at %s", src)
+	}
+	for _, f := range gcc {
+		if err := copyFile(f, filepath.Join(dest, "gcc", filepath.Base(f))); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ramoops compiles the crash log overlays, keeping their labels for the
+// overrides config.txt passes them.
+func ramoops(e hookEnv) error {
+	dtc := filepath.Join(e.host, "bin/dtc")
+	for _, board := range []string{"pi3", "pi4"} {
+		src, dest := e.fromSystem("ramoops-"+board+".dts"), e.toImages("ramoops-"+board+".dtbo")
+		if err := run("", nil, dtc, "-@", "-I", "dts", "-O", "dtb", "-o", dest, src); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// grubenvs writes the GRUB environment each slot starts with, and the one
+// validating it writes.
+func grubenvs(images string) error {
+	for name, vars := range map[string][]string{
+		"grubenv_a":       {"boot=0", "validated=0", "booted_once=0"},
+		"grubenv_a_valid": {"boot=0", "validated=1", "booted_once=1"},
+		"grubenv_b":       {"boot=1", "validated=0", "booted_once=0"},
+		"grubenv_b_valid": {"boot=1", "validated=1", "booted_once=1"},
+	} {
+		if err := writeGrubenv(filepath.Join(images, name), vars); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// The header grub-editenv writes.
+const grubenvHeader = "# GRUB Environment Block\n" +
+	"# WARNING: Do not edit this file by tools other than grub-editenv!!!\n"
+
+// writeGrubenv writes a GRUB environment block as grub-editenv does: its
+// header, the variables in order, and # to 1024 bytes.
+func writeGrubenv(path string, vars []string) error {
+	var b bytes.Buffer
+	b.WriteString(grubenvHeader)
+	for _, v := range vars {
+		b.WriteString(v)
+		b.WriteByte('\n')
+	}
+	if b.Len() > 1024 {
+		return fmt.Errorf("%s: %d bytes of variables do not fit a GRUB environment", path, b.Len())
+	}
+	b.Write(bytes.Repeat([]byte("#"), 1024-b.Len()))
+	return os.WriteFile(path, b.Bytes(), 0o644)
+}
+
+// postImage runs once the root filesystem image is made. It makes the
+// provisioning partition's filesystem, then hands over to nerves_system_br,
+// which puts fwup.conf in images/ and the Nerves scripts beside it.
+func postImage(args []string) error {
+	_, e, err := hook("post-image", args)
+	if err != nil {
+		return err
+	}
+	if err := provisioningImage(e); err != nil {
+		return err
+	}
+	nerves := filepath.Join(e.nerves, "board/nerves-common/post-createfs.sh")
+	return run("", nil, nerves, e.images, e.fromSystem("fwup.conf"))
+}
+
+// The provisioning filesystem's UUID and hash seed, fixed so every build makes
+// the same bytes.
+const provisioningUUID = "5f0c2b6e-8a41-4d7e-9b3a-2c6e1f4d8a90"
+
+var provisioningBlocks = regexp.MustCompile(`(?m)^define\(PROVISIONING_PART_COUNT, (\d+)\)`)
+
+// provisioningImage makes an empty ext4 filesystem the size of the layout's
+// provisioning partition, stamped with the build's time.
+func provisioningImage(e hookEnv) error {
+	layout, err := os.ReadFile(e.fromSystem("fwup_include/fwup-common.conf"))
+	if err != nil {
+		return err
+	}
+	m := provisioningBlocks.FindSubmatch(layout)
+	if m == nil {
+		return fmt.Errorf("no PROVISIONING_PART_COUNT in the layout")
+	}
+	blocks, err := strconv.Atoi(string(m[1]))
+	if err != nil {
+		return err
+	}
+	epoch := os.Getenv("SOURCE_DATE_EPOCH")
+	if epoch == "" {
+		return fmt.Errorf("no SOURCE_DATE_EPOCH: BR2_REPRODUCIBLE is off")
+	}
+
+	img := e.toImages("provisioning.img")
+	f, err := os.Create(img)
+	if err != nil {
+		return err
+	}
+	if err := f.Truncate(int64(blocks) * 512); err != nil {
+		f.Close()
+		return err
+	}
+	if err := f.Close(); err != nil {
+		return err
+	}
+	env := append(os.Environ(), "E2FSPROGS_FAKE_TIME="+epoch)
+	mke2fs := filepath.Join(e.host, "sbin/mke2fs")
+	return run("", env, mke2fs, "-q", "-t", "ext4", "-L", "PROVISION", "-m", "0", "-F",
+		"-U", provisioningUUID, "-E", "hash_seed="+provisioningUUID, img)
+}
