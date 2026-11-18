@@ -12,6 +12,9 @@ BR2_TOOLCHAIN_EXTERNAL_CXX=y
 BR2_TOOLCHAIN_EXTERNAL_FORTRAN=y
 BR2_TOOLCHAIN_EXTERNAL_OPENMP=y
 
+# Erlang
+BR2_PACKAGE_ERLANG_29=y
+
 # Downloads, patches and reproducibility
 BR2_PRIMARY_SITE="https://sources.buildroot.net"
 BR2_BACKUP_SITE="https://dl.nerves-project.org"
