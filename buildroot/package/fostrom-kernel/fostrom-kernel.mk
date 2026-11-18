@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-FOSTROM_KERNEL_VERSION = 0.1.0
+FOSTROM_KERNEL_VERSION = 0.1.1
 FOSTROM_KERNEL_TARGET = $(call qstrip,$(BR2_PACKAGE_FOSTROM_KERNEL_TARGET))
 FOSTROM_KERNEL_SOURCE = kernel-$(FOSTROM_KERNEL_TARGET)-$(FOSTROM_KERNEL_VERSION).tar.zst
 FOSTROM_KERNEL_SITE = https://github.com/fostrom/kernel-builds/releases/download/v$(FOSTROM_KERNEL_VERSION)

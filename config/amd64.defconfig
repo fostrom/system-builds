@@ -2,7 +2,7 @@
 
 # Architecture and toolchain
 BR2_x86_64=y
-BR2_TOOLCHAIN_EXTERNAL_URL="https://github.com/nerves-project/toolchains/releases/download/v15.3.0/nerves_toolchain_x86_64_nerves_linux_gnu-linux_${shell uname -m}-15.3.0-C85F8A0.tar.xz"
+BR2_TOOLCHAIN_EXTERNAL_URL="https://github.com/nerves-project/toolchains/releases/download/v15.3.1/nerves_toolchain_x86_64_nerves_linux_gnu-linux_${shell uname -m}-15.3.1-7A36E3A.tar.xz"
 BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="$(ARCH)-nerves-linux-gnu"
 
 # Boot: GRUB
