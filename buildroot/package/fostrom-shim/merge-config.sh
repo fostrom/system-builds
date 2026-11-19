@@ -21,5 +21,5 @@ while IFS= read -r line; do
     esac
 
     sed -i -e "/^${sym}=/d" -e "/^# ${sym} is not set\$/d" "$config"
-    printf '%s\n' "$line" >> "$config"
-done < "$fragment"
+    printf '%s\n' "$line" >>"$config"
+done <"$fragment"
